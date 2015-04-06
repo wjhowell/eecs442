@@ -68,40 +68,22 @@ points = detectHarrisFeatures(smooth,'FilterSize',65);
 %points.plot; hold off;
 strongpts = selectStrongest(points,6);
 strongloc = strongpts.Location;
+strongloc = sortrows(strongloc);
 samecorners = dist2(strongloc,strongloc) > 50;
+goodpts = zeros(4,2);
+j = 1;
+i = 1;
+for loop = 1:4
+   summed = sum(samecorners==0);
+   goodpts(j,:) = strongloc(i,:);
+   if(summed(:,i)>1)%duplicate
+       i = i+1;
+   end
+   j = j+1;
+   i = i+1;
+end
+plot(goodpts(:,1), goodpts(:,2), '+g'); hold off;
 
-strongpts.plot; hold off;
 
-% [row  col] = find(smooth);
-% pts(:,1) = row;
-% pts(:,2) = col;
-% dist = sqrt(dist2(pts, pts));
-% [d ind] = max(dist(:));
-% dist = sqrt((y2-y1)^2+(x2-x1)^2);
-
-
-% figure, imshow(smooth); hold on
-% 
-% [row  col] = find(smooth);
-% 
-% [minr minri] = min(row);
-% [minc minci] = min(col);
-% [maxr maxri] = max(row);
-% [maxc maxci] = max(col);
-% 
-% minr2 = col(minri);
-% minc2 = row(minci);
-% maxr2 = col(maxri);
-% maxc2 = row(maxci);
-% 
-% corners1 = [minr2; minc; maxr2; maxc];
-% corners2 = [minr; minc2; maxr; maxc2];
-% 
-% plot(corners1, corners2, 'Color', 'green', 'Marker', 'x');
-
-% corners = detectHarrisFeatures(smooth);
-% [features, valid_corners] = extractFeatures(smooth, corners);
-% figure; imshow(smooth); hold on
-% plot(valid_corners); hold off
 
 % stop = 1;
