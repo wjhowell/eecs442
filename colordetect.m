@@ -67,25 +67,38 @@ imshow(im1); hold on
 points = detectHarrisFeatures(smooth,'FilterSize',65);
 strongpts = selectStrongest(points,6);
 strongloc = strongpts.Location;
-% strongloc = sortrows(strongloc);
 samecorners = dist2(strongloc,strongloc) > 3550;
-goodpts = zeros(4,2);
-j = 1;
-i = 1;
-for loop = 1:4
-   summed = sum(samecorners==0);
-   goodpts(j,:) = strongloc(i,:);
-   if(summed(:,i)>1)%duplicate
-       i = i+1;
-   end
-   j = j+1;
-   i = i+1;
-end
-% plot(goodpts(:,1), goodpts(:,2), '+g'); hold off;
+goodpts = zeros(6,2);
 
-plotloc(1:3,:) = strongloc(1:3,:);
-plotloc(4,:) = strongloc(5,:);
-plotloc([4 2],:) = plotloc([2 4],:);
-plotloc([4 3],:) = plotloc([3 4],:);
-fill(plotloc(:,1), plotloc(:,2),'r'); hold off;
-stop = 1;
+goodpts(1,:) = strongloc(1,:);
+j = 2;
+count = 0;
+for i = 2:6
+    skip = 0;
+    for loop = 1:j-1
+        if(samecorners(:,j) == samecorners(:,j-loop))
+           skip = 1;
+           break; 
+        end
+    end
+    if(skip == 0)
+        goodpts(i,:) = strongloc(j,:);
+        count = count + 1;
+        if(count == 3)
+            break;
+        end
+    else
+       goodpts(i,:) = [0 0]; 
+    end
+    j = j+1;
+end
+
+j = 1;
+greatpts = zeros(4,2);
+for i = 1:6;
+   if(goodpts(i,:) > 0)
+       greatpts(j,:) = goodpts(i,:);
+       j = j+1;
+   end
+end
+plot(greatpts(:,1), greatpts(:,2), '+g');
