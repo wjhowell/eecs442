@@ -1,4 +1,4 @@
-im1 = imread('sq3.jpg');
+im1 = imread('bsq2.jpg');
 % vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
 %                     'ROI', [1 1 640 480], ...
 %                     'ReturnedColorSpace', 'rgb');
@@ -32,11 +32,12 @@ green = im1(:,:,2);
 blue = im1(:,:,3);
 % detectblue = (blue > 75) & (blue < 95) & (red < 10) & (green < 60);
 % detectblue = (blue > 130) & (blue < 210) & (red < 130) & (red > 20) & (green < 210) & (green > 120);
-detectyellow = (blue > 90) & (blue < 160) & (red < 260) & (red > 210) & (green < 250) & (green > 175);
-smooth = medfilt2(detectyellow, [5 5]);
+% detectyellow = (blue > 90) & (blue < 160) & (red < 260) & (red > 210) & (green < 250) & (green > 175);
+detectblack = (red < 35)&(green < 35)&(blue < 35);
+smooth = medfilt2(detectblack, [5 5]);
 smooth = imfill(smooth, 'holes');
 % brdr = edge(smooth);
-imshow(smooth); hold on
+imshow(im1); hold on
 
 
 
@@ -64,12 +65,10 @@ imshow(smooth); hold on
 
 
 points = detectHarrisFeatures(smooth,'FilterSize',65);
-%ptsloc = points.Location;
-%points.plot; hold off;
 strongpts = selectStrongest(points,6);
 strongloc = strongpts.Location;
-strongloc = sortrows(strongloc);
-samecorners = dist2(strongloc,strongloc) > 50;
+% strongloc = sortrows(strongloc);
+samecorners = dist2(strongloc,strongloc) > 3550;
 goodpts = zeros(4,2);
 j = 1;
 i = 1;
@@ -82,8 +81,11 @@ for loop = 1:4
    j = j+1;
    i = i+1;
 end
-plot(goodpts(:,1), goodpts(:,2), '+g'); hold off;
+% plot(goodpts(:,1), goodpts(:,2), '+g'); hold off;
 
-
-
-% stop = 1;
+plotloc(1:3,:) = strongloc(1:3,:);
+plotloc(4,:) = strongloc(5,:);
+plotloc([4 2],:) = plotloc([2 4],:);
+plotloc([4 3],:) = plotloc([3 4],:);
+fill(plotloc(:,1), plotloc(:,2),'r'); hold off;
+stop = 1;
