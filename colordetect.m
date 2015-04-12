@@ -102,17 +102,17 @@ plot(greatpts(:,1), greatpts(:,2), '+g');
 blacksum = zeros(4,1);
 % corners = zeros(4,2);
 for i = 1:4
-    crop = im1(greatpts(i,2)-75:greatpts(i,2)+75,greatpts(i,1)-75:greatpts(i,1)+75,:);
+    crop = im1(greatpts(i,2)-70:greatpts(i,2)+70,greatpts(i,1)-70:greatpts(i,1)+70,:);
     black = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
     blacksum(i,1) = sum(sum(black));
     figure, imshow(crop);
 %     if black(1,1) == 1 % bottom right
 %         corners(3,:) = greatpts(i,:);        
-%     elseif black(1,150) == 1 % bottom left
+%     elseif black(1,140) == 1 % bottom left
 %         corners(2,:) = greatpts(i,:);
-%     elseif black(150,1) == 1 % top right
+%     elseif black(140,1) == 1 % top right
 %         corners(4,:) = greatpts(i,:);
-%     elseif black(150,150) == 1 % top left
+%     elseif black(140,140) == 1 % top left
 %         corners(1,:) = greatpts(i,:);
 %     end
 end
