@@ -1,6 +1,6 @@
 tic;
 im1 = imread('bsq6.jpg');
-im2 = imread('Stop_Sign.jpg');
+im2 = imread('puppy.jpg');
 % vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
 %                     'ROI', [1 1 640 480], ...
 %                     'ReturnedColorSpace', 'rgb');
@@ -28,14 +28,10 @@ im2 = imread('Stop_Sign.jpg');
 red = im1(:,:,1);
 green = im1(:,:,2);
 blue = im1(:,:,3);
-% detectblue = (blue > 75) & (blue < 95) & (red < 10) & (green < 60);
-% detectblue = (blue > 130) & (blue < 210) & (red < 130) & (red > 20) & (green < 210) & (green > 120);
-% detectyellow = (blue > 90) & (blue < 160) & (red < 260) & (red > 210) & (green < 250) & (green > 175);
 detectblack = (red < 35)&(green < 35)&(blue < 35);
 smooth = medfilt2(detectblack, [5 5]);
 smooth = imfill(smooth, 'holes');
-% brdr = edge(smooth);
-imshow(im1); hold on
+% imshow(im1); hold on
 
 % while(nFrame < 20000)
 %     rgbFrame = step(vidDevice); % Acquire single frame
@@ -97,7 +93,7 @@ for i = 1:6;
    end
 end
 
-plot(greatpts(:,1), greatpts(:,2), '+g');
+% plot(greatpts(:,1), greatpts(:,2), '+g');
 
 w = 40; %window
 blacksum = zeros(4,1);
@@ -137,21 +133,10 @@ H = H';
 T = maketform('projective', H); %use affine2d
 imT = imtransform(im2,T);
 
-% figure, imshow(imT);
-
-orig = im1;
-
-xdist = greatpts(1,1);
-ydist = greatpts(1,2);
-
 translated = imtranslate(imT, [min(greatpts(:,1)), min(greatpts(:,2))], 'OutputView', 'full');
 [x, y, z] = size(translated);
-% figure, imshow(translated)
-test = orig;
-test(1:x,1:y,1:z) = translated + orig(1:x,1:y,1:z);
-% mask = (translated(:,:,1) > 0);
-% first = translated(:,:,1);
-% first(mask > 0) = first(mask > 0);
+test = im1;
+test(1:x,1:y,1:z) = translated + im1(1:x,1:y,1:z);
 figure, imshow(test);
 
 toc;
