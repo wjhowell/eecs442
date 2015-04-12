@@ -1,5 +1,5 @@
 tic;
-im1 = imread('bsq7.jpg');
+im1 = imread('bsq6.jpg');
 im2 = imread('Stop_Sign.jpg');
 % vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
 %                     'ROI', [1 1 640 480], ...
@@ -104,25 +104,9 @@ blacksum = zeros(4,1);
 black = zeros(2*w+1,2*w+1,4);
 corners = zeros(4,2);
 for i = 1:4
-<<<<<<< HEAD
     crop = im1(greatpts(i,2)-w:greatpts(i,2)+w,greatpts(i,1)-w:greatpts(i,1)+w,:);
     black(:,:,i) = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
     blacksum(i,1) = sum(sum(black(:,:,i)));
-=======
-    crop = im1(greatpts(i,2)-70:greatpts(i,2)+70,greatpts(i,1)-70:greatpts(i,1)+70,:);
-    black = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
-    blacksum(i,1) = sum(sum(black));
-    figure, imshow(crop);
-%     if black(1,1) == 1 % bottom right
-%         corners(3,:) = greatpts(i,:);        
-%     elseif black(1,140) == 1 % bottom left
-%         corners(2,:) = greatpts(i,:);
-%     elseif black(140,1) == 1 % top right
-%         corners(4,:) = greatpts(i,:);
-%     elseif black(140,140) == 1 % top left
-%         corners(1,:) = greatpts(i,:);
-%     end
->>>>>>> origin/master
 end
 
 [~, whitecorner] = min(blacksum);
