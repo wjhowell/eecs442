@@ -1,4 +1,5 @@
-im1 = imread('bsq2.jpg');
+im1 = imread('bsq3.jpg');
+im2 = imread('Stop_Sign.jpg');
 % vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
 %                     'ROI', [1 1 640 480], ...
 %                     'ReturnedColorSpace', 'rgb');
@@ -102,3 +103,12 @@ for i = 1:6;
    end
 end
 plot(greatpts(:,1), greatpts(:,2), '+g');
+
+squarepts = [1 1; 500 500; 1 500; 500 1];
+%H = calcH(greatpts, squarepts);
+H = calcH(squarepts, greatpts);
+H = H';
+T = maketform('projective', H); %use affine2d
+imT = imtransform(im2,T);
+imshow(imT);
+
