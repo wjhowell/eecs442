@@ -1,5 +1,5 @@
 tic;
-im1 = imread('bsq4.jpg');
+im1 = imread('bsq7.jpg');
 im2 = imread('Stop_Sign.jpg');
 % vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
 %                     'ROI', [1 1 640 480], ...
@@ -99,34 +99,45 @@ end
 
 plot(greatpts(:,1), greatpts(:,2), '+g');
 
+w = 40; %window
 blacksum = zeros(4,1);
-% corners = zeros(4,2);
+black = zeros(2*w+1,2*w+1,4);
+corners = zeros(4,2);
 for i = 1:4
-    crop = im1(greatpts(i,2)-75:greatpts(i,2)+75,greatpts(i,1)-75:greatpts(i,1)+75,:);
-    black = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
-    blacksum(i,1) = sum(sum(black));
-    figure, imshow(crop);
-%     if black(1,1) == 1 % bottom right
-%         corners(3,:) = greatpts(i,:);        
-%     elseif black(1,150) == 1 % bottom left
-%         corners(2,:) = greatpts(i,:);
-%     elseif black(150,1) == 1 % top right
-%         corners(4,:) = greatpts(i,:);
-%     elseif black(150,150) == 1 % top left
-%         corners(1,:) = greatpts(i,:);
-%     end
+    crop = im1(greatpts(i,2)-w:greatpts(i,2)+w,greatpts(i,1)-w:greatpts(i,1)+w,:);
+    black(:,:,i) = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
+    blacksum(i,1) = sum(sum(black(:,:,i)));
 end
 
 [~, whitecorner] = min(blacksum);
 
-squarepts = [1 1; 500 1; 500 500; 1 500]; % top left, bottom left, bottom right, top right
-%H = calcH(greatpts, squarepts);
-H = calcH(squarepts, greatpts);
+for i = 1:4 
+    if i == whitecorner
+        continue;
+    end
+    
+    if black(1,1,i) == 1 % bottom right
+        corners(3,:) = greatpts(i,:);        
+    elseif black(1,2*w+1,i) == 1 % bottom left
+        corners(2,:) = greatpts(i,:);
+    elseif black(2*w+1,1,i) == 1 % top right
+        corners(4,:) = greatpts(i,:);
+    elseif black(2*w+1,2*w+1,i) == 1 % top left
+        corners(1,:) = greatpts(i,:);
+    end    
+end
+
+shift = find(corners(:,1) == 0);
+corners(shift,:) = greatpts(whitecorner,:);
+corners = circshift(corners,-(shift-1));
+
+squarepts = [1 1; 1 500; 500 500; 500 1]; % top left, bottom left, bottom right, top right
+H = calcH(squarepts, corners);
 H = H';
 T = maketform('projective', H); %use affine2d
 imT = imtransform(im2,T);
 
-%imshow(imT);
+% figure, imshow(imT);
 
 orig = im1;
 
@@ -135,13 +146,12 @@ ydist = greatpts(1,2);
 
 translated = imtranslate(imT, [min(greatpts(:,1)), min(greatpts(:,2))], 'OutputView', 'full');
 [x, y, z] = size(translated);
-test = im1;
-test(1:x,1:y,1:z) = translated + im1(1:x,1:y,1:z);
+% figure, imshow(translated)
+test = orig;
+test(1:x,1:y,1:z) = translated + orig(1:x,1:y,1:z);
 % mask = (translated(:,:,1) > 0);
 % first = translated(:,:,1);
 % first(mask > 0) = first(mask > 0);
 figure, imshow(test);
 
 toc;
-
-
