@@ -1,36 +1,21 @@
-% im1 = imread('bsq6.jpg');
-% im2 = imread('puppy.jpg');
-vidDevice = imaq.VideoDevice('winvideo', 1, 'YUY2_640x480', ... % Acquire input video stream
-                    'ROI', [1 1 640 480], ...
-                    'ReturnedColorSpace', 'rgb');
-vidInfo = imaqhwinfo(vidDevice); % Acquire input video property
-hVideoIn = vision.VideoPlayer('Name', 'Final Video', ... % Output video player
-                                'Position', [100 100 vidInfo.MaxWidth+20 vidInfo.MaxHeight+30]);
-nFrame = 0; % Frame number initialization
+function [output] = colorfunc(input)
 
-% red = im1(:,:,1);
-% green = im1(:,:,2);
-% blue = im1(:,:,3);
-% detectblack = (red < 35)&(green < 35)&(blue < 35);
-% smooth = medfilt2(detectblack, [5 5]);
-% smooth = imfill(smooth, 'holes');
-% imshow(im1); hold on
+im1 = input;
+im2 = imread('puppy.jpg');
 
-while(nFrame < 20000)
-    im1 = step(vidDevice); % Acquire single frame
-    im1 = flipdim(im1,2);
-    red = im1(:,:,1);
-    green = im1(:,:,2);
-    blue = im1(:,:,3);
-    detectblack = (red < 35)&(green < 35)&(blue < 35);
-    smooth = medfilt2(detectblack, [5 5]);
-    smooth = imfill(smooth, 'holes');
-    
-    step(hVideoIn, vidIn); % Output video stream
-    nFrame = nFrame+1;
-end
+red = im1(:,:,1);
+green = im1(:,:,2);
+blue = im1(:,:,3);
+% detectblack = (red < .3)&(green < .3)&(blue < .3);
+detectblack = (red < 30)&(green < 30)&(blue < 30);
+smooth = medfilt2(detectblack, [5 5]);
+smooth = imfill(smooth, 'holes');
 
 points = detectHarrisFeatures(smooth,'FilterSize',65);
+if isempty(points)
+    output = input;
+    return
+end
 strongpts = selectStrongest(points,6);
 strongloc = strongpts.Location;
 samecorners = dist2(strongloc,strongloc) > 3550;
@@ -68,15 +53,18 @@ for i = 1:6;
    end
 end
 
-% plot(greatpts(:,1), greatpts(:,2), '+g');
-
 w = 40; %window
 blacksum = zeros(4,1);
 black = zeros(2*w+1,2*w+1,4);
 corners = zeros(4,2);
 for i = 1:4
+    if((greatpts(i,2)-w) < 1 || (greatpts(i,2)+w) > size(im1,1) || (greatpts(i,1)-w) < 1 || (greatpts(i,1)+w) > size(im1,2))
+        output = input;
+        return
+    end
     crop = im1(greatpts(i,2)-w:greatpts(i,2)+w,greatpts(i,1)-w:greatpts(i,1)+w,:);
-    black(:,:,i) = (crop(:,:,1) < 35)&(crop(:,:,2) < 35)&(crop(:,:,3) < 35);
+%     black(:,:,i) = (crop(:,:,1) < .3)&(crop(:,:,2) < .3)&(crop(:,:,3) < .3);
+    black(:,:,i) = (crop(:,:,1) < 30)&(crop(:,:,2) < 30)&(crop(:,:,3) < 30);
     blacksum(i,1) = sum(sum(black(:,:,i)));
 end
 
@@ -110,6 +98,6 @@ imT = imtransform(im2,T);
 
 translated = imtranslate(imT, [min(greatpts(:,1)), min(greatpts(:,2))], 'OutputView', 'full');
 [x, y, z] = size(translated);
-test = im1;
-test(1:x,1:y,1:z) = translated + im1(1:x,1:y,1:z);
-figure, imshow(test);
+output = im1;
+output(1:x,1:y,1:z) = im2single(translated) + im1(1:x,1:y,1:z);
+
